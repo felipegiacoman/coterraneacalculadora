@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Simulador UF">
+    
+    <title>Coterránea - Simulador</title>
+    
+    <style>
+        /* Estilos modernos y amigables para móvil */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f0f2f5; 
+            margin: 0;
+        }
+        .container { 
+            background: #ffffff; 
+            padding: 25px 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            max-width: 400px; 
+            margin: 10px auto; 
+        }
+        .logo-text {
+            text-align: center;
+            color: #1a365d;
+            margin-top: 0;
+            font-size: 24px;
+        }
+        label { 
+            display: block; 
+            margin-top: 15px; 
+            font-weight: 600; 
+            color: #4a5568; 
+            font-size: 14px;
+        }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 6px; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; /* 16px evita que iOS haga zoom automático */
+            background-color: #f8fafc;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3182ce;
+            background-color: #fff;
+        }
+        button { 
+            width: 100%; 
+            padding: 16px; 
+            background-color: #2b6cb0; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold;
+            margin-top: 25px; 
+            cursor: pointer; 
+            box-shadow: 0 4px 6px rgba(43, 108, 176, 0.2);
+        }
+        button:active { 
+            background-color: #2c5282; 
+            transform: translateY(2px);
+        }
+        .result { 
+            margin-top: 25px; 
+            padding: 20px; 
+            background-color: #ebf8ff; 
+            border: 1px solid #bee3f8;
+            border-radius: 8px; 
+            text-align: center; 
+        }
+        .result h3 { 
+            margin: 0; 
+            color: #2b6cb0; 
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .result p { 
+            font-size: 32px; 
+            font-weight: bold; 
+            color: #2c5282; 
+            margin: 10px 0 5px 0; 
+        }
+        .result small {
+            color: #4a5568;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="logo-text">Coterránea Simulador</h2>
+        
+        <label for="precio">1. Precio Parcela (UF)</label>
+        <input type="number" id="precio" placeholder="Ej: 1500" inputmode="numeric">
+
+        <label for="pie">2. Pie (UF)</label>
+        <input type="number" id="pie" placeholder="Ej: 300" inputmode="numeric">
+
+        <label for="meses">3. Plazo del crédito</label>
+        <select id="meses">
+            <option value="12">12 meses</option>
+            <option value="24">24 meses</option>
+            <option value="36">36 meses</option>
+            <option value="48">48 meses</option>
+        </select>
+
+        <label for="interes">4. Interés Anual (%)</label>
+        <input type="number" id="interes" placeholder="Ej: 5.5" step="0.1" inputmode="decimal">
+
+        <button onclick="calcularCuota()">Simular Cuota</button>
+
+        <div class="result" id="resultado" style="display: none;">
+            <h3>Cuota Mensual (UF)</h3>
+            <p id="valorCuota">0.00</p>
+            <small id="detalle">Monto a financiar: 0 UF</small>
+        </div>
+    </div>
+
+    <script>
+        function calcularCuota() {
+            // Obtener los valores del formulario
+            let precio = parseFloat(document.getElementById('precio').value);
+            let pie = parseFloat(document.getElementById('pie').value);
+            let meses = parseInt(document.getElementById('meses').value);
+            let interesAnual = parseFloat(document.getElementById('interes').value);
+
+            // Validaciones básicas
+            if(isNaN(precio) || isNaN(pie) || isNaN(interesAnual)) {
+                alert("Por favor, ingresa todos los campos para simular.");
+                return;
+            }
+            if(pie >= precio) {
+                alert("El Pie no puede ser mayor o igual al valor de la parcela.");
+                return;
+            }
+
+            // --- FÓRMULA DE INTERÉS SIMPLE ---
+            
+            // 1. Capital a financiar
+            let capital = precio - pie;
+            
+            // 2. Tiempo en años
+            let tiempoAnos = meses / 12;
+            
+            // 3. Interés Total ( I = Capital * Tasa * Tiempo )
+            let interesTotal = capital * (interesAnual / 100) * tiempoAnos;
+            
+            // 4. Monto Final (Capital + Intereses)
+            let montoFinal = capital + interesTotal;
+            
+            // 5. Cuota mensual (Monto Final / Cantidad de Meses)
+            let cuota = montoFinal / meses;
+
+            // Mostrar resultados
+            document.getElementById('valorCuota').innerText = cuota.toFixed(2);
+            document.getElementById('detalle').innerText = "Financiando " + capital.toFixed(2) + " UF + Intereses";
+            document.getElementById('resultado').style.display = 'block';
+            
+            // Desplaza suavemente hacia el resultado si el celular es muy pequeño
+            document.getElementById('resultado').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+</body>
+</html>
